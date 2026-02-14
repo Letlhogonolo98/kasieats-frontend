@@ -22,7 +22,7 @@ function VendorDashboard() {
   // Handle Logout
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/vendor/login');
   };
 
   const handleSubmit = (e) => {

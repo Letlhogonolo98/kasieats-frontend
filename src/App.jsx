@@ -5,6 +5,9 @@ import HomePage from './pages/HomePage';
 import VendorDashboard from './pages/VendorDashboard';
 import ShopPage from './pages/ShopPage';
 import VendorLogin from './pages/VendorLogin';
+import VendorRegister from './pages/VendorRegister';
+import VendorProfile from './pages/VendorProfile';
+import VendorLayout from './components/VendorLayout';
 
 function App() {
   return (
@@ -19,9 +22,18 @@ function App() {
             <Routes>
               {/* 3. Your Roadmap of Pages */}
               <Route path="/" element={<HomePage />} />
-              <Route path="/vendor" element={<VendorDashboard />} />
+              <Route path="/vendor/dashboard" element={<VendorDashboard />} />
               <Route path="/shop/:shopName" element={<ShopPage />} />
-              <Route path="/login" element={<VendorLogin />} />
+              <Route path="/vendor/login" element={<VendorLogin />} />
+              <Route path="/vendor/register" element={<VendorRegister />} />
+             <Route 
+  path="/vendor/dashboard" 
+  element={<VendorLayout><VendorDashboard /></VendorLayout>} 
+/>
+<Route 
+  path="/vendor/profile" 
+  element={<VendorLayout><VendorProfile /></VendorLayout>} 
+/>
               {/* We will add the Checkout route here next! */}
             </Routes>
           </main>
