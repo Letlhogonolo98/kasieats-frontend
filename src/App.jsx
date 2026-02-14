@@ -8,6 +8,7 @@ import VendorLogin from './pages/VendorLogin';
 import VendorRegister from './pages/VendorRegister';
 import VendorProfile from './pages/VendorProfile';
 import VendorLayout from './components/VendorLayout';
+import MenuManager from './pages/MenuManager';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               <Route path="/vendor/dashboard" element={<VendorDashboard />} />
               <Route path="/shop/:shopName" element={<ShopPage />} />
               <Route path="/vendor/login" element={<VendorLogin />} />
+              <Route path="/vendor/menu" element={<VendorLayout><MenuManager /></VendorLayout>} />
               <Route path="/vendor/register" element={<VendorRegister />} />
              <Route 
   path="/vendor/dashboard" 
@@ -41,6 +43,7 @@ function App() {
           {/* Optional: Footer could go here */}
         </div>
       </Router>
+      
     </CartProvider>
   );
 }
