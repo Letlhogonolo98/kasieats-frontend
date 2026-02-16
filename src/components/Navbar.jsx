@@ -27,7 +27,7 @@ function Navbar() {
             
             {/* VENDOR PORTAL (Existing Sellers) */}
             <Link 
-              to="/vendor" 
+              to="/vendor/menu" 
               className="hidden sm:block text-gray-600 hover:text-orange-600 font-bold text-sm transition"
             >
               Vendor Portal
@@ -48,7 +48,7 @@ function Navbar() {
 
             {/* SIGN UP (New Users/Sellers) */}
             <Link 
-              to="/signup" 
+              to="/vendor/register" 
               className="bg-orange-500 text-white px-5 py-2 rounded-xl font-bold text-sm hover:bg-orange-600 transition-all active:scale-95 shadow-sm"
             >
               Sign Up

@@ -7,7 +7,54 @@ const MenuManager = () => {
   const [newItem, setNewItem] = useState({ name: '', price: '', description: '' });
   const [loading, setLoading] = useState(false);
 
-  // 1. Professional way: Wrap fetch in useCallback to prevent unnecessary re-renders
+  const [imageFile, setImageFile] = useState(null);
+
+const handleAdd = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  
+  let imageUrl = "";
+
+  try {
+    // Upload to Cloudinary if an image is selected
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append("file", imageFile);
+      formData.append("upload_preset", "kasieats_preset"); 
+
+      const cloudRes = await fetch("https://api.cloudinary.com/v1_1/drhcoware/image/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const cloudData = await cloudRes.json();
+      imageUrl = cloudData.secure_url; // This is the public link to the image
+    }
+
+    // Save to the Backend
+    const res = await fetch('http://localhost:5144/api/menu', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        ...newItem, 
+        price: parseFloat(newItem.price), 
+        vendorId: vendor.id,
+        imageUrl: imageUrl // Send the link to our DB
+      })
+    });
+
+    if (res.ok) {
+      setNewItem({ name: '', price: '', description: '' });
+      setImageFile(null);
+      fetchItems();
+    }
+  } catch {
+    alert("Upload failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
+  //  Wrap fetch in useCallback to prevent unnecessary re-renders
   const fetchItems = useCallback(async () => {
     if (!vendor?.id) return;
     
@@ -22,13 +69,13 @@ const MenuManager = () => {
     }
   }, [vendor?.id]);
 
-  // 2. Trigger the fetch on mount
+  // Trigger the fetch on mount
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
 
-  // 3. Handle adding a new item
-  const handleAdd = async (e) => {
+  // Handle adding a new item
+ /* const handleAdd = async (e) => {
     e.preventDefault();
     setLoading(true);
     
@@ -38,7 +85,7 @@ const MenuManager = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           ...newItem, 
-          price: parseFloat(newItem.price), // Ensure price is a number for C# decimal
+          price: parseFloat(newItem.price),
           vendorId: vendor.id 
         })
       });
@@ -52,9 +99,9 @@ const MenuManager = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };*/
 
-  // 4. Handle deleting an item
+  // Handle deleting an item
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to remove this item?")) return;
 
@@ -109,6 +156,17 @@ const MenuManager = () => {
               onChange={(e) => setNewItem({...newItem, description: e.target.value})}
             />
           </div>
+
+          <div>
+  <label className="text-xs font-bold uppercase text-gray-400">Food Image</label>
+  <input 
+    type="file" 
+    accept="image/*"
+    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+    onChange={(e) => setImageFile(e.target.files[0])}
+  />
+</div>
+
           <button 
             disabled={loading}
             className="md:col-start-3 bg-orange-600 text-white font-bold p-3 rounded-xl hover:bg-orange-700 transition shadow-lg shadow-orange-100 disabled:bg-gray-300"
@@ -118,32 +176,70 @@ const MenuManager = () => {
         </form>
       </section>
 
-      {/* Menu List */}
-      <section className="grid grid-cols-1 gap-4">
-        <h2 className="text-xl font-black text-gray-800 mb-2">Current Menu</h2>
-        {items.length === 0 ? (
-          <div className="text-center py-10 bg-gray-100 rounded-3xl border-2 border-dashed">
-            <p className="text-gray-400 font-bold">Your menu is empty. Add your first item above!</p>
+      {/* Menu List Section */}
+<section className="mt-12">
+  <div className="flex items-center justify-between mb-6">
+    <h2 className="text-2xl font-black text-gray-800">Live Menu Items</h2>
+    <span className="bg-orange-100 text-orange-600 px-4 py-1 rounded-full text-sm font-bold">
+      {items.length} Items Total
+    </span>
+  </div>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {items.length === 0 ? (
+      <div className="col-span-full py-20 bg-gray-50 rounded-4xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center">
+        <div className="text-5xl mb-4">🥣</div>
+        <p className="text-gray-400 font-bold italic">Your menu is empty. Add your first item above!</p>
+      </div>
+    ) : (
+      items.map((item) => (
+        <div 
+          key={item.id} 
+          className="bg-white p-4 rounded-4xl shadow-sm border border-gray-100 flex items-center gap-5 hover:shadow-md hover:border-orange-200 transition-all group"
+        >
+          {/* Image Thumbnail */}
+          <div className="w-24 h-24 bg-gray-100 rounded-3xl overflow-hidden shrink-0 border border-gray-50 relative">
+            {item.imageUrl ? (
+              <img 
+                src={item.imageUrl} 
+                alt={item.name} 
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" 
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-3xl">🍔</div>
+            )}
           </div>
-        ) : (
-          items.map(item => (
-            <div key={item.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group hover:border-orange-200 transition">
-              <div>
-                <h3 className="font-bold text-lg text-gray-800">{item.name}</h3>
-                <p className="text-gray-500 text-sm line-clamp-1">{item.description}</p>
-                <p className="text-orange-600 font-black mt-1">R {parseFloat(item.price).toFixed(2)}</p>
-              </div>
+
+          {/* Item Details */}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-black text-gray-800 text-lg truncate mb-1">
+              {item.name}
+            </h3>
+            <p className="text-gray-400 text-xs line-clamp-2 mb-2 leading-relaxed">
+              {item.description || "No description provided for this item."}
+            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-orange-600 font-black text-lg">
+                R {parseFloat(item.price).toFixed(2)}
+              </p>
+              
+              {/* Delete Button */}
               <button 
                 onClick={() => handleDelete(item.id)}
-                className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition"
-                title="Delete Item"
+                className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                title="Remove Item"
               >
-                🗑️
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
               </button>
             </div>
-          ))
-        )}
-      </section>
+          </div>
+        </div>
+      ))
+    )}
+  </div>
+</section>
     </div>
   );
 };
