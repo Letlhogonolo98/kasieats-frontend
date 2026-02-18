@@ -9,6 +9,7 @@ import VendorRegister from './pages/VendorRegister';
 import VendorProfile from './pages/VendorProfile';
 import VendorLayout from './components/VendorLayout';
 import MenuManager from './pages/MenuManager';
+import OrderFeed from './pages/OrderFeed';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
               <Route path="/vendor/dashboard" element={<VendorDashboard />} />
               <Route path="/shop/:shopName" element={<ShopPage />} />
               <Route path="/vendor/login" element={<VendorLogin />} />
+              <Route path="/vendor/orders" element={<VendorLayout><OrderFeed /></VendorLayout>} />
               <Route path="/vendor/menu" element={<VendorLayout><MenuManager /></VendorLayout>} />
               <Route path="/vendor/register" element={<VendorRegister />} />
              <Route 
